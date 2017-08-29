@@ -1,0 +1,173 @@
+version: '3'
+
+services:
+  wschat:
+    image: ${IMAGE:-ws-chat}
+    ports:
+      - "8080:80"
+    networks:
+      - datastore
+      - pubsub
+    depends_on:
+      - datastore
+      - pubsub
+    volumes:
+      - ./public:/public
+    environment:
+      DATASTORE_EMULATOR_HOST: datastore:8081
+      PUBSUB_EMULATOR_HOST: pubsub:8081
+
+  test:
+    build:
+      dockerfile: Dockerfile.dev
+      context: .
+    working_dir: /go/src/github.com/asiragusa/wschat
+    volumes:
+      - .:/go/src/github.com/asiragusa/wschat
+      - /tmp/test-results:/tmp/test-results
+    networks:
+      - datastore
+      - pubsub
+    depends_on:
+      - datastore-test
+      - pubsub-test
+    environment:
+      DATASTORE_EMULATOR_HOST: datastore-test:8081
+      PUBSUB_EMULATOR_HOST: pubsub-test:8081
+    entrypoint:
+      - ./scripts/test.sh
+
+  cover:
+    build:
+      dockerfile: Dockerfile.dev
+      context: .
+    working_dir: /go/src/github.com/asiragusa/wschat
+    volumes:
+      - .:/go/src/github.com/asiragusa/wschat
+      - /tmp/cover-results:/tmp/cover-results
+    networks:
+      - datastore
+      - pubsub
+    depends_on:
+      - datastore-test
+      - pubsub-test
+    environment:
+      DATASTORE_EMULATOR_HOST: datastore-test:8081
+      PUBSUB_EMULATOR_HOST: pubsub-test:8081
+    entrypoint:
+      - ./scripts/cover.sh
+
+  godoc:
+    build:
+      dockerfile: Dockerfile.dev
+      context: .
+    ports:
+      - "6060:6060"
+    working_dir: /go/src/github.com/asiragusa/wschat
+    volumes:
+      - .:/go/src/github.com/asiragusa/wschat
+    entrypoint:
+      - godoc
+      - -http
+      - :6060
+
+  fmt:
+    build:
+      dockerfile: Dockerfile.dev
+      context: .
+    working_dir: /go/src/github.com/asiragusa/wschat
+    volumes:
+      - .:/go/src/github.com/asiragusa/wschat
+    entrypoint:
+      - ./scripts/fmt.sh
+
+  unformatted:
+    build:
+      dockerfile: Dockerfile.dev
+      context: .
+    working_dir: /go/src/github.com/asiragusa/wschat
+    volumes:
+      - .:/go/src/github.com/asiragusa/wschat
+    entrypoint:
+      - ./scripts/unformatted.sh
+
+  go:
+    build:
+      dockerfile: Dockerfile.dev
+      context: .
+    working_dir: /go/src/github.com/asiragusa/wschat
+    volumes:
+      - .:/go/src/github.com/asiragusa/wschat
+    entrypoint:
+      - go
+
+  glide:
+    build:
+      dockerfile: Dockerfile.dev
+      context: .
+    working_dir: /go/src/github.com/asiragusa/wschat
+    volumes:
+      - .:/go/src/github.com/asiragusa/wschat
+    entrypoint:
+      - glide
+
+  mockery:
+    build:
+      dockerfile: Dockerfile.dev
+      context: .
+    working_dir: /go/src/github.com/asiragusa/wschat
+    volumes:
+      - .:/go/src/github.com/asiragusa/wschat
+    entrypoint:
+      - mockery
+
+  build:
+    build:
+      context: .
+    image: ${IMAGE:-ws-chat}
+    entrypoint:
+      - /bin/true
+
+  datastore:
+    image: google/cloud-sdk:latest
+    command: gcloud beta emulators datastore start --project test --host-port=0.0.0.0:8081 --consistency=1
+    expose:
+      - 8081
+    networks:
+      datastore:
+        aliases:
+          - datastore
+
+  datastore-test:
+    image: google/cloud-sdk:latest
+    command: gcloud beta emulators datastore start --project test --host-port=0.0.0.0:8081 --consistency=1
+    expose:
+      - 8081
+    networks:
+      datastore:
+        aliases:
+          - datastore-test
+
+  pubsub:
+    image: google/cloud-sdk:latest
+    command: gcloud beta emulators pubsub start --project test --host-port=0.0.0.0:8081
+    expose:
+      - 8081
+    networks:
+      pubsub:
+        aliases:
+          - pubsub
+
+  pubsub-test:
+    image: google/cloud-sdk:latest
+    command: gcloud beta emulators pubsub start --project test --host-port=0.0.0.0:8081
+    expose:
+      - 8081
+    networks:
+      pubsub:
+        aliases:
+          - pubsub-test
+
+networks:
+  datastore:
+  pubsub:

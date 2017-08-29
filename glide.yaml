@@ -1,0 +1,29 @@
+package: github.com/asiragusa/wschat
+import:
+- package: github.com/urfave/cli
+- package: github.com/kataras/iris
+  version: ^8.2.1
+  subpackages:
+  - '...'
+- package: github.com/facebookgo/inject
+- package: github.com/facebookgo/structtag
+- package: github.com/stretchr/testify
+  version: ^1.1.4
+- package: gopkg.in/go-playground/validator.v9
+  version: ^9.6.0
+- package: github.com/go-playground/universal-translator
+  version: ^0.16.0
+- package: cloud.google.com/go
+  version: ^0.11.0
+  subpackages:
+  - datastore
+  - pubsub
+- package: github.com/jonboulle/clockwork
+  version: ^0.1.0
+- package: github.com/dgrijalva/jwt-go
+  version: ^3.0.0
+- package: github.com/satori/go.uuid
+  version: ^1.1.0
+- package: github.com/iris-contrib/httpexpect
+- package: github.com/googleapis/gax-go
+  version: 84ed26760e7f6f80887a2fbfb50db3cc415d2cea
